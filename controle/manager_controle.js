@@ -255,18 +255,25 @@ removemanfrominf=function(infId,manId){
         })
     }) 
 }
-changepassword=function(id,oldpass,newpass){
+changepassword=function(id,oldpass,newpass,error){
     return new Promise((resolve,reject)=>{ 
         manager.findOne({_id:id},(err,doc)=>{
             if(err){
                 reject(err)
             }else{
-          if(condition=manager().Compass(oldpass,doc.password)){
-             manager.updateOne({_id:id},{password:new manager().Hashpass(newpass)},(err,data)=>{
+            if(error){ 
+                reject(error)
+                console.log(error)
+            }
+            else{
+                 if(condition=manager().Compass(oldpass,doc.password)){
+                 manager.updateOne({_id:id},{password:new manager().Hashpass(newpass)},(err,data)=>{
                  if (err){
                      reject(err)
-                 }else{
-                     resolve(data)
+                 }
+                 else{
+                         resolve(data)
+                      
                      }
              })
                 }
@@ -274,8 +281,8 @@ changepassword=function(id,oldpass,newpass){
              reject('the oldpassword is incorrect')
           }
     }
-    })})
-   
+    }})})
+
 }
 finding=function(infid,id){
     return new Promise((resolve,reject)=>{

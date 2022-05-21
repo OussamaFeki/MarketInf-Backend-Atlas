@@ -137,8 +137,11 @@ route.delete('/dellist/:id_man',(req,res,next)=>{
   .then(doc=>res.status(200).json(doc))
   .catch(err=>res.status(400).json(err))
 })
-route.put('/configman/:id_man',(req,res,next)=>{
-  contr.changepassword(req.params.id_man,req.body.oldpass,req.body.newpass)
+route.put('/configman/:id_man',check('newpass','The new password must be 4+ chars long and contain a number ').isLength({min: 4}),(req,res,next)=>{
+  const error=validationResult(req);
+  if(!error.isEmpty()){
+  var messageoferror=error.errors[0].msg}
+  contr.changepassword(req.params.id_man,req.body.oldpass,req.body.newpass,messageoferror)
   .then(doc=>res.status(200).json(doc))
   .catch(err=>res.status(400).json(err))
 })
