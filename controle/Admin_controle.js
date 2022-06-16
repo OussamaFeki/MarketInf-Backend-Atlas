@@ -3,6 +3,7 @@ var mongoose=require('mongoose');
 const jwt=require('jsonwebtoken');
 var contr=require('../controle/manager_controle')
 var Admin=require('../models/Admin')
+var inscriptman=require('../models/inscriman')
 var influencer=require('../models/influencers');
 const manager = require('../models/managers');
 require('dotenv').config();
@@ -93,7 +94,13 @@ login=function(email,password){
 
                 }else{
                reject('this email or password is incorrect') }          
-            }else{ reject('this email or password is incorrect')
+            }else{
+                inscriptman.findOne({email},(err,res)=>{
+                    if(res){
+                        reject('please wait for Admin to accept your signup')
+                    }
+                    else{reject('this email or password is incorrect')}
+                })  
             }
         })
         

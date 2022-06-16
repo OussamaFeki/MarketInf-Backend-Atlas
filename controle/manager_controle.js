@@ -68,7 +68,7 @@ registry=function(fullname,email,password,repass,error){
                         let newman=new manager({
                             fullname,
                             email,
-                            password:new manager().Hashpass(password),
+                            password:password,
                             image:null
                         })
                             newman.save((err,doc)=>{
@@ -91,7 +91,7 @@ registry=function(fullname,email,password,repass,error){
             })   
         
        })
-    }
+}
 delman=function(id){
     return new Promise((resolve,reject)=>{
         manager.findOneAndDelete({_id:id},(err,doc)=>{
@@ -295,15 +295,26 @@ finding=function(infid,id){
         })  
     })
 }
-updateprices=function(id,standard,foreachmultilove,foreachmultilike){
+updateprices=function(id,standard,foreachmultilove,foreachmultilike,errors){
     return new Promise((resolve,reject)=>{
+        if(errors){
+            reject(errors)
+        }else{
         manager.updateOne({_id:id},{foreachmultilove,foreachmultilike,standard},(err,res)=>{
             if(err){
                 reject(err)
-            }else{
-                resolve (res)
             }
-        })
+            
+                manager.findOne({_id:id},(error,doc)=>{
+                    if(error){
+                        reject(error)
+                    }else{
+                        resolve (doc)
+                    }
+                
+                
+            })  
+        })}
     }) 
 }
 module.exports={loginman,updateman,delman,registry,

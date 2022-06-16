@@ -178,7 +178,7 @@ removelistnewman=function(id){
 }
 rest=function(id){
     return new Promise((resolve,reject)=>{
-        Newman.updateOne({id_manager:id},{ notification:0},(err,res)=>{
+        Newman.updateOne({id_inf:id},{ notification:0},(err,res)=>{
             if(err){
                 reject(err)
             }else{

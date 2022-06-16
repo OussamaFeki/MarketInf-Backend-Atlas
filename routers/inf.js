@@ -6,7 +6,7 @@ var newman = require("../controle/newman_controle");
 var Newman = require("../models/Newman");
 var modinfluencer = require("../models/influencers");
 const upload = require("../upload/upimg");
-const axios = require("axios");
+var profit_contro=require('../controle/profit_contro')
 require("dotenv").config();
 const { facebook } = require("../config/config");
 passport = require("passport");
@@ -106,7 +106,7 @@ passport.deserializeUser((id, done) => {
     done(null, user);
   });
 });
-
+// inscription pf influencer
 route.post(
   "/addinf",
   [
@@ -148,6 +148,7 @@ route.post(
       });
   }
 );
+//for manager or Admin (search)
 route.get("/influencers", (req, res, next) => {
   // let token=req.headers.authorization
   // let user=jwt.decode(token,{complete:true})
@@ -160,6 +161,20 @@ route.get("/influencers", (req, res, next) => {
       res.status(400).json(err);
     });
 });
+route.get("/research", (req, res, next) => {
+  contr
+    .search(req.query.fullname)
+    .then((doc) => res.status(200).json(doc))
+    .catch((err) => res.status(400).json(err));
+});
+//profile 
+route.get("/influencer/:id", upload.single("image"), (req, res, next) => {
+  contr
+    .getinfbyid(req.params.id)
+    .then((doc) => res.status(200).json(doc))
+    .catch((err) => res.status(400).json(err));
+});
+//login of influencer 
 route.post("/login", (req, res, next) => {
   contr
     .login(req.body.email,req.body.pass)
@@ -170,6 +185,7 @@ route.post("/login", (req, res, next) => {
       res.status(400).json(err);
     });
 });
+//for Admin
 route.delete("/delete/:id", (req, res, next) => {
   contr
     .deleteinf(req.params.id)
@@ -180,6 +196,13 @@ route.delete("/delete/:id", (req, res, next) => {
       res.status(400).json(err);
     });
 });
+route.delete("/dellistnewman/:id_inf", (req, res, next) => {
+  newman
+    .removelistnewman(req.params.id_inf)
+    .then((doc) => res.status(200).json(doc))
+    .catch((err) => res.status(400).json(err));
+});
+//for influencer 
 route.patch("/updateinf/:id", verifytoken, (req, res, next) => {
   contr
     .editinf(
@@ -195,18 +218,32 @@ route.patch("/updateinf/:id", verifytoken, (req, res, next) => {
       res.status(400).json(err);
     });
 });
-route.get("/influencer/:id", upload.single("image"), (req, res, next) => {
+route.get("/newman/:id_man", (req, res, next) => {
+  newman
+    .getallinvit(req.params.id_man)
+    .then((doc) =>
+      res.status(200).json({ doc: doc.managers, notif: doc.notification })
+    );
+});
+route.put("/configinf/:id", (req, res, next) => {
   contr
-    .getinfbyid(req.params.id)
+    .changepassword(req.params.id, req.body.oldpass, req.body.newpass)
     .then((doc) => res.status(200).json(doc))
     .catch((err) => res.status(400).json(err));
 });
-route.get("/research", (req, res, next) => {
+route.get("/mansofinf/:id", (req, res, next) => {
   contr
-    .search(req.query.fullname)
+    .getmanofinf(req.params.id)
     .then((doc) => res.status(200).json(doc))
     .catch((err) => res.status(400).json(err));
 });
+
+route.put("/upavatarofinf/:id", upload.single("image"), (req, res, next) => {
+  contr
+    .upavatar(req.params.id, req.file)
+    .then((doc) => res.status(200).json(doc));
+});
+// login with facebook for influencer 
 route.get(
   "/auth/facebook",
   passport.authenticate("facebook", {
@@ -227,30 +264,9 @@ route.get(
     return res.redirect("http://localhost:4200/prof/?token=" + token);
   }
 );
-route.get("/mansofinf/:id", (req, res, next) => {
-  contr
-    .getmanofinf(req.params.id)
-    .then((doc) => res.status(200).json(doc))
-    .catch((err) => res.status(400).json(err));
-});
-route.get("/newman/:id_man", (req, res, next) => {
-  newman
-    .getallinvit(req.params.id_man)
-    .then((doc) =>
-      res.status(200).json({ doc: doc.managers, notif: doc.notification })
-    );
-});
-route.put("/configinf/:id", (req, res, next) => {
-  contr
-    .changepassword(req.params.id, req.body.oldpass, req.body.newpass)
-    .then((doc) => res.status(200).json(doc))
-    .catch((err) => res.status(400).json(err));
-});
-route.put("/upavatarofinf/:id", upload.single("image"), (req, res, next) => {
-  contr
-    .upavatar(req.params.id, req.file)
-    .then((doc) => res.status(200).json(doc));
-});
+
+
+//collaboration between manager and influencer
 route.get("/refuseman", (req, res, next) => {
   var io = req.app.get("socketio");
   newman.removemanfromnewman(req.query.inf_id, req.query.man_id).then((doc) => {
@@ -301,10 +317,9 @@ route.get("/restnotifinf", (req, res, next) => {
     res.status(200).json(doc);
   });
 });
-route.delete("/dellistnewman/:id_inf", (req, res, next) => {
-  newman
-    .removelistnewman(req.params.id_inf)
-    .then((doc) => res.status(200).json(doc))
-    .catch((err) => res.status(400).json(err));
-});
+//for profit
+route.get('/mytotalprofit',(req,res,next)=>{
+  profit_contro.gettotalprofofinf(req.query.id_inf)
+  .then(doc=>res.status(200).json(doc))
+})
 module.exports = route;

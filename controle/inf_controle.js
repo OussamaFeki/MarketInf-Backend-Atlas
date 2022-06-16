@@ -8,6 +8,7 @@ const Newman=require('../models/Newman')
 var newinf=require('../controle/newinf_cont')
 const fs=require("fs");
 var filepath='./uploads/'
+var profit=require('../models/profit')
 require('dotenv').config();
 postNewInf=function(fullname,email,password,repass,error){
     return new Promise((resolve,reject)=>{
@@ -113,6 +114,14 @@ deleteinf=function(id){
                  })}else{
                      console.log('there is no file to delete')
                  }
+                 profit.deleteMany({inf_id:id},(err,res)=>{
+                    if(res){
+                       resolve(doc)
+                    }
+                     else{
+                        resolve(doc)
+                     }
+                    })
             }
         })
         influencer.deleteOne({_id:id},(err,doc)=>{

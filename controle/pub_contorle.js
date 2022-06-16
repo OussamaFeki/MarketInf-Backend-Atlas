@@ -1,21 +1,30 @@
 const pub =require('../models/acceptedpub')
 acceptepub=function(id_pub,id_manager,imageUrl){
   return new Promise((resolve,reject)=>{
-   let newpub=new pub({
-        id_pub,
-        imageUrl,
-        id_manager
-      })
-      newpub.save((err,res)=>{
-       if(err){
-        reject(err)
+      pub.findOne({id_pub,id_manager},(error,result)=>{
+          if(result){
+              pub.updateOne({id_pub,id_manager},{imageUrl},(erro,resu)=>{
+                  resolve(resu)
+              })
+          }
+          else{
+            let newpub=new pub({
+                id_pub,
+                imageUrl,
+                id_manager
+              })
+              newpub.save((err,res)=>{
+               if(err){
+                reject(err)
+        
+               }else{
+               resolve(res)
+               }
+              })
 
-       }else{
-       resolve(res)
-       }
+          }
       })
   })
-    
 }
 findpub=function(id_pub,id_manager,imageUrl){
     return new Promise ((resolve,reject)=>{
